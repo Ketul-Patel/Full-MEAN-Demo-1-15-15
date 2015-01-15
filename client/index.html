@@ -1,0 +1,59 @@
+<html ng-app='myApp'>
+<head>
+	<title></title>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.28/angular.min.js"></script>
+</head>
+<script>
+	// Setting up the angular app(module)
+	var myApp = angular.module('myApp', []);
+
+	// creating our factory called friendFactory and giving access to $http so we can send ajax/api calls
+	myApp.factory('friendFactory', function($http) {
+		// we are going to keep track of friends here
+		var friends = [];
+		// create the factory object 
+		var factory = {};
+		// method that gets friends from the back-end
+		factory.getFriends = function(callback) {
+			console.log("in the factory about to send the request")
+			$http.get('/friends').success(function(data) {
+				console.log("got success here is our data", data);
+				friends = data;
+				callback(friends);
+			})
+		}
+		// method that adds friends (sends new friends to the back-end)
+		factory.addFactoryFriend = function(data, callback) {
+			friends.push(data);
+			callback(friends);
+		}
+		return factory;
+	})
+
+	// create a controller called friendsController and give it access to $scope and the friendFactory
+	myApp.controller('friendsController', function($scope, friendFactory) {
+		console.log("controller is initialized")
+		$scope.friends = [];
+		// first get all the friends from the factory
+		friendFactory.getFriends(function(data) {
+			console.log("in the controller in the getFriends callback")
+			$scope.friends = data;
+		})
+		// $scope method to add friends calls upon the factory addFactoryFriend method
+		$scope.addFriend = function() {
+			friendFactory.addFactoryFriend($scope.newFriend, function(data) {
+				$scope.friends = data;
+				$scope.newFriend = {};
+			});
+		}
+	})
+</script>
+<body ng-controller="friendsController">
+	<input type="text" ng-model="newFriend.name">
+	<input type="submit" value="Add Friend!" ng-click="addFriend()">
+	<ul>
+		<li ng-repeat="friend in friends">{{friend.name}}</li>
+	</ul>
+
+</body>
+</html>

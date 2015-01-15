@@ -1,0 +1,7 @@
+{
+  "name": "Full_MEAN_Demo",
+  "dependencies": {
+    "express": "^4.11.0",
+    "mongoose": "^3.8.21"
+  }
+}
